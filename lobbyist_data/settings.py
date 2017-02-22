@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'lookup',
-    # 'rest_framework',
+    'rest_framework',
     # 'mod_wsgi.server',
 )
 
