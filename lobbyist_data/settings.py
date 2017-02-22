@@ -57,7 +57,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'lookup',
     'rest_framework',
-    # 'mod_wsgi.server',
+    'mod_wsgi.server',
 )
 
 MIDDLEWARE_CLASSES = (
