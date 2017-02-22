@@ -12,20 +12,38 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import json
+
+from django.core.exceptions import ImproperlyConfigured
+
+with open("c:/cygwin64/home/kaebnickk/lobbyist_data/secrets.json") as f:
+    secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets, default=None):
+    try:
+        return secrets[setting]
+    except KeyError:
+        if default != None:
+            secrets[setting] = default
+            return secrets[setting]
+        else:
+            error_msg = "Set the {0} environment variable".format(setting)
+            raise ImproperlyConfigured(error_msg)
+
+def get_databases():
+    tmp = get_secret('DATABASES')
+    if tmp['default']['NAME'] == 'db.sqlite3':
+        tmp['default']['NAME'] = os.path.join(BASE_DIR, 'db.sqlite3')
+    return tmp
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+SECRET_KEY = get_secret("SECRET_KEY")
+DATABASES = get_databases()
+DEBUG = get_secret('DEBUG', default=False)
+ALLOWED_HOSTS = get_secret('ALLOWED_HOSTS', default=[])
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'fd)#*w5me@*y#m_^=!!n476y0nfzo@ofaxlhi@0yg4v)i46c83'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -37,6 +55,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'lookup',
+    # 'rest_framework',
+    # 'mod_wsgi.server',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -55,7 +76,8 @@ ROOT_URLCONF = 'lobbyist_data.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'static')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,24 +92,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'lobbyist_data.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.IsAdminUser',
+    ],
+    'PAGE_SIZE': 10
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'EST'
 
 USE_I18N = True
 
@@ -99,4 +116,5 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+STATIC_ROOT = "c:/cygwin64/home/kaebnickk/lobbyist_data/static"
 STATIC_URL = '/static/'
